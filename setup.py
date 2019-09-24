@@ -1,16 +1,11 @@
-import os
 import setuptools
-from pip._internal.req import parse_requirements
-from pip._internal.download import PipSession
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-requirements = parse_requirements(os.path.join(os.path.dirname(__file__), 'requirements.txt'), session=PipSession())
-
 setuptools.setup(
     name="googleauthentication",
-    version="0.0.2",
+    version="0.0.7",
     author="Dacker",
     author_email="hello@dacker.co",
     description="A meta package to be connected to Google services",
@@ -24,4 +19,11 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3',
+    install_requires=[
+        "google-api-python-client==1.7.11",
+        "google-auth==1.6.3",
+        "google-auth-httplib2==0.0.3",
+        "google-auth-oauthlib==0.4.0",
+        "cryptography>=2.7"
+    ]
 )
