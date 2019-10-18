@@ -7,3 +7,4 @@ dist/
 *egg-info/
 *sandbox*
 *client_secret*
+deploy.sh
