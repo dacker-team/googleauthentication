@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="googleauthentication",
-    version="0.0.8",
+    version="0.0.9",
     author="Dacker",
     author_email="hello@dacker.co",
     description="A meta package to be connected to Google services",
@@ -23,7 +23,7 @@ setuptools.setup(
         "google-api-python-client==1.7.11",
         "google-auth==1.6.3",
         "google-auth-httplib2==0.0.3",
-        "google-auth-oauthlib==0.4.0",
+        "google-auth-oauthlib>=0.4.0",
         "cryptography>=2.7",
         "dbstream>=0.0.10"
     ]

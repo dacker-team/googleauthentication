@@ -64,7 +64,7 @@ class GoogleAuthentication:
         f.close()
         cred["private_key"] = os.environ["GOOGLE_PRIVATE_KEY"]
         _write_cred(cred, self.client_secret_file_path)
-        credentials = service_account.Credentials.from_service_account_file(self.client_secret_file_path)
+        credentials = service_account.Credentials.from_service_account_file(self.client_secret_file_path, scopes=self.scopes)
         del cred["private_key"]
         _write_cred(cred, self.client_secret_file_path)
         return credentials
