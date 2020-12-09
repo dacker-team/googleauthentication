@@ -52,19 +52,29 @@ def _save_credentials_in_db(_credentials, user_credentials_email, dbstream):
 
 
 class GoogleAuthentication:
-    def __init__(self, client_secret_file_path, user_credentials_email=None, dbstream: DBStream = None, scopes=None):
+    def __init__(self,
+                 client_secret_file_path,
+                 user_credentials_email=None,
+                 dbstream: DBStream = None,
+                 scopes=None,
+                 private_key_var_env_name=None):
         self.client_secret_file_path = client_secret_file_path
         self.user_credentials_email = user_credentials_email
         self.dbstream = dbstream
         self.scopes = scopes
+        if private_key_var_env_name is None:
+            self.private_key_var_env_name = "GOOGLE_PRIVATE_KEY"
+        else:
+            self.private_key_var_env_name = private_key_var_env_name
 
     def credentials(self):
         f = open(self.client_secret_file_path, "r")
         cred = json.load(f)
         f.close()
-        cred["private_key"] = os.environ["GOOGLE_PRIVATE_KEY"]
+        cred["private_key"] = os.environ[self.private_key_var_env_name]
         _write_cred(cred, self.client_secret_file_path)
-        credentials = service_account.Credentials.from_service_account_file(self.client_secret_file_path, scopes=self.scopes)
+        credentials = service_account.Credentials.from_service_account_file(self.client_secret_file_path,
+                                                                            scopes=self.scopes)
         del cred["private_key"]
         _write_cred(cred, self.client_secret_file_path)
         return credentials
