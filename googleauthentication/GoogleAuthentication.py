@@ -57,11 +57,13 @@ class GoogleAuthentication:
                  user_credentials_email=None,
                  dbstream: DBStream = None,
                  scopes=None,
-                 private_key_var_env_name=None):
+                 private_key_var_env_name=None,
+                 private_key_in_var_env=True):
         self.client_secret_file_path = client_secret_file_path
         self.user_credentials_email = user_credentials_email
         self.dbstream = dbstream
         self.scopes = scopes
+        self.private_key_in_var_env = private_key_in_var_env
         if private_key_var_env_name is None:
             self.private_key_var_env_name = "GOOGLE_PRIVATE_KEY"
         else:
@@ -71,13 +73,17 @@ class GoogleAuthentication:
         f = open(self.client_secret_file_path, "r")
         cred = json.load(f)
         f.close()
-        cred["private_key"] = os.environ[self.private_key_var_env_name]
-        _write_cred(cred, self.client_secret_file_path)
-        credentials = service_account.Credentials.from_service_account_file(self.client_secret_file_path,
-                                                                            scopes=self.scopes)
-        del cred["private_key"]
-        _write_cred(cred, self.client_secret_file_path)
-        return credentials
+        if self.private_key_in_var_env is True:
+            cred["private_key"] = os.environ[self.private_key_var_env_name]
+            _write_cred(cred, self.client_secret_file_path)
+        _credentials = service_account.Credentials.from_service_account_file(
+            self.client_secret_file_path,
+            scopes=self.scopes
+        )
+        if self.private_key_in_var_env is True:
+            del cred["private_key"]
+            _write_cred(cred, self.client_secret_file_path)
+        return _credentials
 
     def user_credentials(self):
         if not self.dbstream:
