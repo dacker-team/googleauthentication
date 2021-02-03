@@ -17,7 +17,7 @@ def _write_cred(cred, file_path):
 
 
 def _get_credentials(dbstream, user_credentials_email):
-    query = """SELECT token FROM "ga"."_credentials" WHERE email='%s'""" % user_credentials_email
+    query = """SELECT token FROM ga._credentials WHERE email='%s'""" % user_credentials_email
     try:
         r = dbstream.execute_query(query)
     except Exception as e:
@@ -38,13 +38,13 @@ def _save_credentials_in_db(_credentials, user_credentials_email, dbstream):
     token = secure(str(credentials_dict))
     try:
         query = """
-    DELETE FROM "ga"."_credentials" WHERE email='%s';
+    DELETE FROM ga._credentials WHERE email='%s';
     """
         dbstream.execute_query(query)
     except:
         pass
     data = {
-        "table_name": """ "ga"."_credentials" """,
+        "table_name": """ ga._credentials """,
         "columns_name": ["token", "email"],
         "rows": [[token, user_credentials_email]]
     }
