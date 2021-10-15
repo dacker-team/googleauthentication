@@ -6,15 +6,15 @@ from google.oauth2 import service_account, credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from dbstream import DBStream
+from google.cloud import secretmanager
 
-from googleauthentication.core.encrypt import decrypt_secure, secure
+from googleauthentication2.core.encrypt import decrypt_secure, secure
 
 
 def _write_cred(cred, file_path):
     f = open(file_path, "w")
     f.write(json.dumps(cred))
     f.close()
-
 
 def _get_credentials(dbstream, user_credentials_email):
     query = """SELECT token FROM ga._credentials WHERE email='%s'""" % user_credentials_email
@@ -53,13 +53,15 @@ def _save_credentials_in_db(_credentials, user_credentials_email, dbstream):
 
 class GoogleAuthentication:
     def __init__(self,
-                 client_secret_file_path,
+                 client_secret_file_path=None,
+                 gsm_path=None,
                  user_credentials_email=None,
                  dbstream: DBStream = None,
                  scopes=None,
                  private_key_var_env_name=None,
                  private_key_in_var_env=True):
         self.client_secret_file_path = client_secret_file_path
+        self.gsm_path = gsm_path
         self.user_credentials_email = user_credentials_email
         self.dbstream = dbstream
         self.scopes = scopes
@@ -70,16 +72,28 @@ class GoogleAuthentication:
             self.private_key_var_env_name = private_key_var_env_name
 
     def credentials(self):
-        f = open(self.client_secret_file_path, "r")
-        cred = json.load(f)
-        f.close()
+        if self.gsm_path:
+            sm_client = secretmanager.SecretManagerServiceClient()
+            response = sm_client.access_secret_version(name=self.gsm_path)
+            cred = json.loads(response.payload.data.decode("UTF-8"))
+        else:
+            f = open(self.client_secret_file_path, "r")
+            cred = json.load(f)
+            f.close()
         if self.private_key_in_var_env is True:
             cred["private_key"] = os.environ[self.private_key_var_env_name]
             _write_cred(cred, self.client_secret_file_path)
-        _credentials = service_account.Credentials.from_service_account_file(
-            self.client_secret_file_path,
-            scopes=self.scopes
-        )
+        if self.client_secret_file_path:
+            _credentials = service_account.Credentials.from_service_account_file(
+                self.client_secret_file_path,
+                scopes=self.scopes
+            )
+        else:
+            _credentials = service_account.Credentials.from_service_account_info(
+                cred,
+                scopes=self.scopes
+            )
+
         if self.private_key_in_var_env is True:
             del cred["private_key"]
             _write_cred(cred, self.client_secret_file_path)
