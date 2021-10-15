@@ -26,6 +26,6 @@ setuptools.setup(
         "google-auth-oauthlib>=0.4.0",
         "cryptography>=2.7",
         "dbstream>=0.0.12",
-        "google-cloud-secret-manager 2.7.2"
+        "google-cloud-secret-manager==2.7.2"
     ]
 )
