@@ -8,7 +8,7 @@ from googleapiclient.discovery import build
 from dbstream import DBStream
 from google.cloud import secretmanager
 
-from googleauthentication2.core.encrypt import decrypt_secure, secure
+from googleauthentication.core.encrypt import decrypt_secure, secure
 
 
 def _write_cred(cred, file_path):
