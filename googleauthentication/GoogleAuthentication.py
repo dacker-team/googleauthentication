@@ -73,16 +73,17 @@ class GoogleAuthentication:
         f = open(self.client_secret_file_path, "r")
         cred = json.load(f)
         f.close()
+        client_secret_file_path_tmp = self.client_secret_file_path + "_tmp"
         if self.private_key_in_var_env is True:
             cred["private_key"] = os.environ[self.private_key_var_env_name]
-            _write_cred(cred, self.client_secret_file_path)
+            _write_cred(cred, client_secret_file_path_tmp)
         _credentials = service_account.Credentials.from_service_account_file(
-            self.client_secret_file_path,
+            client_secret_file_path_tmp,
             scopes=self.scopes
         )
         if self.private_key_in_var_env is True:
             del cred["private_key"]
-            _write_cred(cred, self.client_secret_file_path)
+            _write_cred(cred, client_secret_file_path_tmp)
         return _credentials
 
     def user_credentials(self):
