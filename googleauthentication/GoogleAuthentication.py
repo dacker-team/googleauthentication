@@ -16,6 +16,7 @@ def _write_cred(cred, file_path):
     f.write(json.dumps(cred))
     f.close()
 
+
 def _get_credentials(dbstream, user_credentials_email):
     query = """SELECT token FROM ga._credentials WHERE email='%s'""" % user_credentials_email
     try:
@@ -85,18 +86,21 @@ class GoogleAuthentication:
             f = open(self.client_secret_file_path, "r")
             cred = json.load(f)
             f.close()
-            client_secret_file_path_tmp = self.client_secret_file_path + "_tmp"
             if self.private_key_in_var_env is True:
+                client_secret_file_path_tmp = self.client_secret_file_path + "_tmp"
                 cred["private_key"] = os.environ[self.private_key_var_env_name]
-            _write_cred(cred, client_secret_file_path_tmp)
-            _credentials = service_account.Credentials.from_service_account_file(
-                client_secret_file_path_tmp,
-                scopes=self.scopes
-            )
-            if self.private_key_in_var_env is True:
+                _write_cred(cred, client_secret_file_path_tmp)
+                _credentials = service_account.Credentials.from_service_account_file(
+                    client_secret_file_path_tmp,
+                    scopes=self.scopes
+                )
                 del cred["private_key"]
                 _write_cred(cred, client_secret_file_path_tmp)
-
+            else:
+                _credentials = service_account.Credentials.from_service_account_file(
+                    self.client_secret_file_path,
+                    scopes=self.scopes
+                )
             return _credentials
 
     def user_credentials(self):
